@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { TaskService } from "../service/task.service";
 import { AppError } from "../utils/errors";
-import { CreateTaskDTO, UpdateTaskDTO } from "src/types/task.types";
+import { CreateTaskDTO, UpdateTaskDTO } from "../types/task.types";
 
 export class TaskController {
   private taskService: TaskService;
@@ -144,6 +144,4 @@ export class TaskController {
       next(new AppError(400, "Failed to remove note", error));
     }
   };
-
-  
 }

@@ -1,5 +1,6 @@
 import { CreateTaskDTO, UpdateTaskDTO } from "../types/task.types";
 import { Task, ITaskDocument } from "../models/task.model";
+import { AppError } from "../utils/errors";
 
 export class TaskService {
   async createTask(taskData: CreateTaskDTO): Promise<ITaskDocument> {
@@ -32,7 +33,7 @@ export class TaskService {
     );
 
     if (!task) {
-      throw new Error("Task not found");
+      throw new AppError(404, "Task not found");
     }
 
     return task;
@@ -42,7 +43,7 @@ export class TaskService {
     const result = await Task.findByIdAndDelete(taskId);
 
     if (!result) {
-      throw new Error("Task not found");
+      throw new AppError(404, "Task not found");
     }
   }
 
@@ -50,7 +51,7 @@ export class TaskService {
     const task = await Task.findById(taskId);
 
     if (!task) {
-      throw new Error("Task not found");
+      throw new AppError(404, "Task not found");
     }
 
     task.isDone = !task.isDone;
@@ -64,7 +65,7 @@ export class TaskService {
     const task = await Task.findById(taskId);
 
     if (!task) {
-      throw new Error('Task not found');
+      throw new AppError(404, "Task not found");
     }
 
     // Add the note to the task's notes array
@@ -80,7 +81,7 @@ export class TaskService {
     const task = await Task.findById(taskId);
 
     if (!task) {
-      throw new Error('Task not found');
+      throw new AppError(404, "Task not found");
     }
 
     if (noteIndex < 0 || noteIndex >= task.notes.length) {

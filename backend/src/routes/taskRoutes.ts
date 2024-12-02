@@ -1,7 +1,7 @@
-import express from "express";
-import { TaskController } from "src/controllers/task.controller";
+import { Router } from "express";
+import { TaskController } from "../controllers/task.controller";
 
-const router = express.Router();
+const router = Router();
 const taskController = new TaskController();
 
 // Task CRUD operations
