@@ -1,11 +1,18 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
-const App: React.FC = () => {
+const App: React.FC = (): JSX.Element => {
   return (
-    <div>
-      <h1>To-Do App</h1>
-      <p>Welcome! Please log in or register to manage your tasks.</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   );
 };
 
