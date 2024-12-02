@@ -11,6 +11,7 @@ export interface CreateTaskDTO {
   title: string;
   description?: string;
   isDone?: boolean;
+  notes?: string[];
 }
 
 export interface UpdateTaskDTO {
