@@ -43,6 +43,10 @@ const Register: React.FC = () => {
     <div className="min-h-screen flex justify-center items-center bg-gray-100 px-4 py-8">
       <div className="flex justify-between items-center w-full max-w-screen-xl">
         <div className="bg-white p-8 rounded-lg shadow-lg w-[495px] h-[675px] flex flex-col">
+          <div className="absolute top-0 left-0 text-[#333333] p-4 text-[20px] font-semibold leading-[30px]">
+            Checked
+          </div>
+          
           <div className="text-start">
             <h2 className="text-3xl mb-4">Welcome</h2>
             <p className="text-3xl font-bold mb-2">Sign up to</p>
