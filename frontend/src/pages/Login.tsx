@@ -64,7 +64,6 @@ const Login: React.FC = () => {
               <input
                 type={passwordVisible ? "text" : "password"}
                 id="password"
-                placeholder="Enter password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -107,7 +106,7 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        <div className="hidden md:flex justify-center items-center w-[368px] h-[368px] mx-8">
+        <div className="hidden md:flex justify-center items-center w-[368px] h-[368px] mx-12">
           <img
             src={illustration}
             alt="Illustration"
