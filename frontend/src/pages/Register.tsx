@@ -1,36 +1,55 @@
-import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Register: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const auth = getAuth();
 
-  const handleRegister = async (): Promise<void> => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registration successful!");
-    } catch (error: any) {
-      alert("Registration failed: " + error.message);
+      
+      // Automatically log the user in after registration
+      await signInWithEmailAndPassword(auth, email, password);
+      
+      // Redirect to the dashboard or another page after login
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   return (
     <div>
       <h2>Register</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleRegister}>Register</button>
+      <form onSubmit={handleRegister}>
+        <div>
+          <label>Email</label>
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+          />
+        </div>
+        <div>
+          <label>Password</label>
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
+        </div>
+        <button type="submit">Register</button>
+      </form>
+      {error && <p>{error}</p>}
     </div>
   );
 };
