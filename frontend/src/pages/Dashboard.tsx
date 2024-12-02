@@ -12,12 +12,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { TaskAPI } from "../services/api.service";
 import { Task } from "../types/task.types";
+import TaskModal from '../components/TaskModal';
 
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const auth = getAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -42,22 +43,19 @@ const Dashboard: React.FC = (): JSX.Element => {
   }, []);
 
   // CRUD Operations
-  const handleAddTask = async (newTask: Omit<Task, "_id">) => {
+  const handleAddTask = async (taskData: Omit<Task, '_id'>) => {
     try {
-      const taskToCreate = {
-        title: newTaskTitle,
-        isDone: false,
-        description: "",
-        notes: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      console.log('Sending task data:', taskData);
 
-      const createdTask = await TaskAPI.createTask(taskToCreate);
-      setTasks((prevTasks) => [...prevTasks, createdTask]);
-      setNewTaskTitle("");
+      const createdTask = await TaskAPI.createTask(taskData);
+      console.log('Response from server:', createdTask);
+      
+      setTasks(prevTasks => [...prevTasks, createdTask]);
+      setIsModalOpen(false);
     } catch (error: any) {
-      console.error("Error creating task:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Full error:", error);
+      alert('Failed to create task. Please check console for details.');
     }
   };
 
@@ -134,33 +132,12 @@ const Dashboard: React.FC = (): JSX.Element => {
         {/* Add Task Section */}
         <div className="my-4 flex gap-4">
           <button
-            onClick={() => {
-              if (!newTaskTitle.trim()) return;
-
-              const newTask = {
-                _id: "",
-                title: newTaskTitle,
-                isDone: false,
-                description: "",
-                notes: [],
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              handleAddTask(newTask);
-              setNewTaskTitle("");
-            }}
+            onClick={() => setIsModalOpen(true)}
             className="bg-[#00C495] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2"
           >
             <span>+</span>
             Add task
           </button>
-          <input
-            type="text"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="Enter task title"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C495]"
-          />
         </div>
 
         {/* Tasks Section */}
@@ -235,6 +212,13 @@ const Dashboard: React.FC = (): JSX.Element => {
           </div>
         </div>
       </div>
+
+      {/* Add Modal */}
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleAddTask}
+      />
     </div>
   );
 };
