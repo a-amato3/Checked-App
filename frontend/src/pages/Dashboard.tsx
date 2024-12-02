@@ -12,13 +12,17 @@ import {
 } from "@heroicons/react/24/outline";
 import { TaskAPI } from "../services/api.service";
 import { Task } from "../types/task.types";
-import TaskModal from '../components/TaskModal';
+import TaskModal from "../components/TaskModal";
+import { Loading } from "../components/Loading";
 
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const auth = getAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentTask, setCurrentTask] = useState<Task | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -33,29 +37,32 @@ const Dashboard: React.FC = (): JSX.Element => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        setIsLoading(true);
         const fetchedTasks = await TaskAPI.getAllTasks();
         setTasks(fetchedTasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchTasks();
   }, []);
 
   // CRUD Operations
-  const handleAddTask = async (taskData: Omit<Task, '_id'>) => {
+  const handleAddTask = async (taskData: Omit<Task, "_id">) => {
     try {
-      console.log('Sending task data:', taskData);
+      console.log("Sending task data:", taskData);
 
       const createdTask = await TaskAPI.createTask(taskData);
-      console.log('Response from server:', createdTask);
-      
-      setTasks(prevTasks => [...prevTasks, createdTask]);
+      console.log("Response from server:", createdTask);
+
+      setTasks((prevTasks) => [...prevTasks, createdTask]);
       setIsModalOpen(false);
     } catch (error: any) {
       console.error("Error details:", error.response?.data);
       console.error("Full error:", error);
-      alert('Failed to create task. Please check console for details.');
+      alert("Failed to create task. Please check console for details.");
     }
   };
 
@@ -90,6 +97,14 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
+  const filteredTasks = tasks.filter(
+    (task: Task) =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.notes.some((note) =>
+        note.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Banner */}
@@ -103,121 +118,150 @@ const Dashboard: React.FC = (): JSX.Element => {
 
       {/* Main Content */}
       <div className="max-w-screen-xl mx-auto px-4 py-8">
-        {/* Header with Title, Search, and Logout */}
-        <div className="flex justify-between items-center py-6">
-          <h1 className="font-poppins text-[28px] font-bold text-start">
-            My Tasks for the next month
-          </h1>
-          <div className="flex items-center gap-6 ml-auto">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search"
-                className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#00C495]"
-              />
-              <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 border border-gray-300 rounded-[4px] hover:bg-gray-50 flex items-center gap-2"
-            >
-              <LockClosedIcon className="w-5 h-5" />
-              <span className="text-[14px] font-medium leading-[21px]">
-                Logout
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Add Task Section */}
-        <div className="my-4 flex gap-4">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-[#00C495] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2"
-          >
-            <span>+</span>
-            Add task
-          </button>
-        </div>
-
-        {/* Tasks Section */}
-        <div className="bg-white rounded-lg shadow-lg">
-          <div>
-            {/* Task Headers */}
-            <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700">
-              <div className="col-span-1"></div>
-              <div className="col-span-4 flex items-center gap-2">
-                <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                Task name
-              </div>
-              <div className="col-span-2 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-gray-500" />
-                Due date
-              </div>
-              <div className="col-span-2 flex items-center gap-2">
-                <TagIcon className="w-5 h-5 text-gray-500" />
-                Tag
-              </div>
-              <div className="col-span-2 flex items-center gap-2">
-                <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                Note
-              </div>
-              <div className="col-span-1">Actions</div>
-            </div>
-
-            {/* Task Items */}
-            {tasks.map((task) => (
-              <div
-                key={task._id}
-                className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-gray-50"
-              >
-                <div className="col-span-1">
+        {isLoading ? (
+          <Loading message="Loading tasks..." />
+        ) : (
+          <>
+            {/* Header with Title, Search, and Logout */}
+            <div className="flex justify-between items-center py-6">
+              <h1 className="font-poppins text-[28px] font-bold text-start">
+                My Tasks for the next month
+              </h1>
+              <div className="flex items-center gap-6 ml-auto">
+                <div className="relative">
                   <input
-                    type="checkbox"
-                    checked={task.isDone}
-                    onChange={() =>
-                      handleToggleComplete(task._id, !task.isDone)
-                    }
-                    className="rounded"
+                    type="search"
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#00C495]"
                   />
+                  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
-                <div className="col-span-4">{task.title}</div>
-                <div className="col-span-2">
-                  {new Date(task.createdAt).toLocaleDateString()}
-                </div>
-                <div className="col-span-2">
-                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                    {task.description || "No tag"}
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 border border-gray-300 rounded-[4px] hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <LockClosedIcon className="w-5 h-5" />
+                  <span className="text-[14px] font-medium leading-[21px]">
+                    Logout
                   </span>
-                </div>
-                <div className="col-span-2">{task.notes.join(", ")}</div>
-                <div className="col-span-1 flex gap-2">
-                  <button
-                    className="text-gray-500 hover:text-gray-700"
-                    onClick={() => {
-                      // setCurrentTask(task);
-                    }}
-                  >
-                    <PencilIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    className="text-gray-500 hover:text-gray-700"
-                    onClick={() => handleDeleteTask(task._id)}
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            {/* Add Task Section */}
+            <div className="my-4 flex gap-4">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#00C495] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2"
+              >
+                <span>+</span>
+                Add task
+              </button>
+            </div>
+
+            {/* Tasks Section */}
+            <div className="bg-white rounded-lg shadow-lg">
+              <div>
+                {/* Task Headers */}
+                <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700">
+                  <div className="col-span-1"></div>
+                  <div className="col-span-4 flex items-center gap-2">
+                    <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                    Task name
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2">
+                    <CalendarIcon className="w-5 h-5 text-gray-500" />
+                    Due date
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2">
+                    <TagIcon className="w-5 h-5 text-gray-500" />
+                    Tag
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2">
+                    <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                    Note
+                  </div>
+                  <div className="col-span-1">Actions</div>
+                </div>
+
+                {/* Task Items */}
+                {filteredTasks.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    {searchQuery
+                      ? "No tasks found matching your search."
+                      : "No tasks found. Add a task to get started!"}
+                  </div>
+                )}
+
+                {filteredTasks.map((task: Task) => (
+                  <div
+                    key={task._id}
+                    className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-gray-50"
+                  >
+                    <div className="col-span-1">
+                      <input
+                        type="checkbox"
+                        checked={task.isDone}
+                        onChange={() =>
+                          handleToggleComplete(task._id, !task.isDone)
+                        }
+                        className="rounded"
+                      />
+                    </div>
+                    <div className="col-span-4">{task.title}</div>
+                    <div className="col-span-2">
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "No due date"}
+                    </div>
+                    <div className="col-span-2">
+                      <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                        {task.description || "No tag"}
+                      </span>
+                    </div>
+                    <div className="col-span-2">{task.notes.join(", ")}</div>
+                    <div className="col-span-1 flex gap-2">
+                      <button
+                        className="text-gray-500 hover:text-gray-700"
+                        onClick={() => {
+                          setCurrentTask(task);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        className="text-gray-500 hover:text-gray-700"
+                        onClick={() => handleDeleteTask(task._id)}
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Add Modal */}
       <TaskModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddTask}
+        onClose={() => {
+          setIsModalOpen(false);
+          setCurrentTask(null);
+        }}
+        onSubmit={(taskData) => {
+          if (currentTask) {
+            handleEditTask(currentTask._id, taskData);
+          } else {
+            handleAddTask(taskData);
+          }
+        }}
+        existingTask={currentTask}
       />
     </div>
   );

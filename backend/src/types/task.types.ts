@@ -10,6 +10,7 @@ export interface ITask {
 export interface CreateTaskDTO {
   title: string;
   description?: string;
+  dueDate?: Date;
   isDone?: boolean;
   notes?: string[];
 }
@@ -17,5 +18,6 @@ export interface CreateTaskDTO {
 export interface UpdateTaskDTO {
   title?: string;
   description?: string;
+  dueDate?: Date;
   isDone?: boolean;
 }

@@ -2,6 +2,7 @@ export interface Task {
     _id: string;
     title: string;
     description?: string;
+    dueDate?: Date;
     isDone: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -11,6 +12,7 @@ export interface Task {
 export interface CreateTaskDTO {
     title: string;
     description?: string;
+    dueDate?: Date;
     isDone?: boolean;
     notes?: string[];
 }
@@ -18,6 +20,7 @@ export interface CreateTaskDTO {
 export interface UpdateTaskDTO {
     title?: string;
     description?: string;
+    dueDate?: Date;
     isDone?: boolean;
     notes?: string[];
 }
