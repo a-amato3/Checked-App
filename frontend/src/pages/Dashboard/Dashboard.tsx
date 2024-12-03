@@ -2,27 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import {
-  TrashIcon,
-  PencilIcon,
-  CalendarIcon,
-  TagIcon,
   Bars3CenterLeftIcon,
   MagnifyingGlassIcon,
   LockClosedIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "react-beautiful-dnd";
+import { DragDropContext, DropResult} from "react-beautiful-dnd";
 import { TaskAPI } from "../../services/api.service";
 import { Task } from "../../types/task.types";
 import TaskModal from "../../components/TaskModal";
 import { Loading } from "../../components/Loading";
-import { SortDirection, SortField, tagColors } from "./types";
+import { SortDirection, SortField } from "./types";
+import { TaskLists } from './TaskLists';
 
 
 const Dashboard: React.FC = (): JSX.Element => {
@@ -180,45 +170,6 @@ const Dashboard: React.FC = (): JSX.Element => {
     await handleToggleComplete(draggableId, newIsDone);
   };
 
-  const renderHeaders = () => (
-    <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
-      <div className="col-span-1"></div>
-      <div 
-        className="col-span-4 flex items-center gap-2 cursor-pointer hover:text-gray-900"
-        onClick={() => handleSort('title')}
-      >
-        <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-        Task name
-        {sortField === 'title' && (
-          <span className="ml-1">
-            {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : ''}
-          </span>
-        )}
-      </div>
-      <div className="col-span-2 flex items-center gap-2">
-        <CalendarIcon className="w-5 h-5 text-gray-500" />
-        Due date
-      </div>
-      <div className="col-span-2 flex items-center gap-2">
-        <TagIcon className="w-5 h-5 text-gray-500" />
-        Tag
-      </div>
-      <div 
-        className="col-span-2 flex items-center gap-2 cursor-pointer hover:text-gray-900"
-        onClick={() => handleSort('notes')}
-      >
-        <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-        Note
-        {sortField === 'notes' && (
-          <span className="ml-1">
-            {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : ''}
-          </span>
-        )}
-      </div>
-      <div className="col-span-1">Actions</div>
-    </div>
-  );
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="min-h-screen bg-gray-100">
@@ -312,231 +263,21 @@ const Dashboard: React.FC = (): JSX.Element => {
           {isLoading ? (
             <Loading />
           ) : (
-            <>
-              {/* Active Tasks Section */}
-              <div className="flex justify-start">
-                <h2 className="px-4 py-2 text-lg font-semibold text-gray-700">
-                  Tasks to do
-                </h2>
-                <button
-                  onClick={() => setIsActiveTasksOpen(!isActiveTasksOpen)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  {isActiveTasksOpen ? (
-                    <ChevronDownIcon className="w-5 h-5" />
-                  ) : (
-                    <ChevronUpIcon className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              {isActiveTasksOpen && (
-                <Droppable droppableId="todo">
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="bg-white rounded-lg shadow-lg mb-8 font-inter"
-                    >
-                      <div>
-                        {renderHeaders()}
-                        {/* Task Items */}
-                        {activeTasks.length === 0 && (
-                          <div className="text-center py-8 text-gray-500">
-                            {searchQuery
-                              ? "No active tasks found matching your search."
-                              : "No active tasks found. Add a task to get started!"}
-                          </div>
-                        )}
-
-                        {activeTasks.map((task: Task, index: number) => (
-                          <Draggable
-                            key={task._id}
-                            draggableId={task._id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-gray-200 ${
-                                  snapshot.isDragging
-                                    ? "bg-gray-50"
-                                    : "hover:bg-gray-50"
-                                }`}
-                              >
-                                <div className="col-span-1">
-                                  <input
-                                    type="checkbox"
-                                    checked={task.isDone}
-                                    onChange={() =>
-                                      handleToggleComplete(
-                                        task._id,
-                                        !task.isDone
-                                      )
-                                    }
-                                    className="rounded  focus:ring-[#00C495]"
-                                  />
-                                </div>
-                                <div className="col-span-4">{task.title}</div>
-                                <div className="col-span-2">
-                                  {task.dueDate
-                                    ? new Date(
-                                        task.dueDate
-                                      ).toLocaleDateString()
-                                    : "No due date"}
-                                </div>
-                                <div className="col-span-2">
-                                  <span
-                                    className="px-3 py-1 rounded-full text-sm"
-                                    style={{
-                                      backgroundColor: task.description
-                                        ? tagColors[
-                                            task.description.replace(/\s/g, "")
-                                          ]
-                                        : "#DDDDDD",
-                                    }}
-                                  >
-                                    {task.description || "No tag"}
-                                  </span>
-                                </div>
-                                <div className="col-span-2">
-                                  {task.notes.join(", ")}
-                                </div>
-                                <div className="col-span-1 flex gap-2">
-                                  <button
-                                    className="text-gray-500 hover:text-gray-700"
-                                    onClick={() => {
-                                      setCurrentTask(task);
-                                      setIsModalOpen(true);
-                                    }}
-                                  >
-                                    <PencilIcon className="w-5 h-5" />
-                                  </button>
-                                  <button
-                                    className="text-gray-500 hover:text-gray-700"
-                                    onClick={() => handleDeleteTask(task._id)}
-                                  >
-                                    <TrashIcon className="w-5 h-5" />
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    </div>
-                  )}
-                </Droppable>
-              )}
-
-              {/* Completed Tasks Section */}
-              <div className="flex justify-start">
-                <h2 className="px-4 py-2 text-lg font-semibold text-gray-700">
-                  Tasks done
-                </h2>
-                <button
-                  onClick={() => setIsCompletedTasksOpen(!isCompletedTasksOpen)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  {isCompletedTasksOpen ? (
-                    <ChevronDownIcon className="w-5 h-5" />
-                  ) : (
-                    <ChevronUpIcon className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              {isCompletedTasksOpen && (
-                <Droppable droppableId="done">
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="bg-white rounded-lg shadow-lg font-inter"
-                    >
-                      <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
-                        <div className="col-span-1"></div>
-                        <div className="col-span-4 flex items-center gap-2">
-                          <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                          Task name
-                        </div>
-                        <div className="col-span-2 flex items-center gap-2">
-                          <CalendarIcon className="w-5 h-5 text-gray-500" />
-                          Due date
-                        </div>
-                        <div className="col-span-2 flex items-center gap-2">
-                          <TagIcon className="w-5 h-5 text-gray-500" />
-                          Tag
-                        </div>
-                        <div className="col-span-2 flex items-center gap-2">
-                          <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                          Note
-                        </div>
-                        <div className="col-span-1">Actions</div>
-                      </div>
-                      {completedTasks.map((task: Task, index: number) => (
-                        <Draggable
-                          key={task._id}
-                          draggableId={task._id}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-gray-200 ${
-                                snapshot.isDragging
-                                  ? "bg-gray-50"
-                                  : "hover:bg-gray-50"
-                              }`}
-                            >
-                              <div className="col-span-1">
-                                <input
-                                  type="checkbox"
-                                  checked={task.isDone}
-                                  onChange={() =>
-                                    handleToggleComplete(task._id, !task.isDone)
-                                  }
-                                  className="rounded text-[#00C495] focus:ring-[#00C495]"
-                                />
-                              </div>
-                              <div className="col-span-4">{task.title}</div>
-                              <div className="col-span-2">
-                                {task.dueDate
-                                  ? new Date(task.dueDate).toLocaleDateString()
-                                  : "No due date"}
-                              </div>
-                              <div className="col-span-2">
-                                <span
-                                  className="px-3 py-1 rounded-full text-sm"
-                                  style={{
-                                    backgroundColor: task.description
-                                      ? tagColors[
-                                          task.description.replace(/\s/g, "")
-                                        ]
-                                      : "#DDDDDD",
-                                  }}
-                                >
-                                  {task.description || "No tag"}
-                                </span>
-                              </div>
-                              <div className="col-span-2">
-                                {task.notes.join(", ")}
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              )}
-            </>
+            <TaskLists
+              activeTasks={activeTasks}
+              completedTasks={completedTasks}
+              isActiveTasksOpen={isActiveTasksOpen}
+              isCompletedTasksOpen={isCompletedTasksOpen}
+              setIsActiveTasksOpen={setIsActiveTasksOpen}
+              setIsCompletedTasksOpen={setIsCompletedTasksOpen}
+              handleToggleComplete={handleToggleComplete}
+              handleDeleteTask={handleDeleteTask}
+              setCurrentTask={setCurrentTask}
+              setIsModalOpen={setIsModalOpen}
+              handleSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+            />
           )}
         </div>
         {/* Add Modal */}
