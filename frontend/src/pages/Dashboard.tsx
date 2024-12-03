@@ -12,7 +12,12 @@ import {
   ChevronUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 import { TaskAPI } from "../services/api.service";
 import { Task } from "../types/task.types";
 import TaskModal from "../components/TaskModal";
@@ -123,10 +128,7 @@ const Dashboard: React.FC = (): JSX.Element => {
   const activeTasks = filteredTasks.filter((task) => !task.isDone);
   const completedTasks = filteredTasks.filter((task) => task.isDone);
 
-
-
   const onDragEnd = async (result: DropResult) => {
-
     const { source, destination, draggableId } = result;
 
     // Drop outside valid area
@@ -136,9 +138,10 @@ const Dashboard: React.FC = (): JSX.Element => {
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
-    ) return;
+    )
+      return;
 
-    const task = tasks.find(t => t._id === draggableId);
+    const task = tasks.find((t) => t._id === draggableId);
     if (!task) return;
 
     // Moving within the same list
@@ -146,7 +149,7 @@ const Dashboard: React.FC = (): JSX.Element => {
       return;
     }
 
-    const newIsDone = destination.droppableId === 'done';
+    const newIsDone = destination.droppableId === "done";
     await handleToggleComplete(draggableId, newIsDone);
   };
 
@@ -266,14 +269,20 @@ const Dashboard: React.FC = (): JSX.Element => {
                         )}
 
                         {activeTasks.map((task: Task, index: number) => (
-                          <Draggable key={task._id} draggableId={task._id} index={index}>
+                          <Draggable
+                            key={task._id}
+                            draggableId={task._id}
+                            index={index}
+                          >
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 className={`grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-gray-200 ${
-                                  snapshot.isDragging ? 'bg-gray-50' : 'hover:bg-gray-50'
+                                  snapshot.isDragging
+                                    ? "bg-gray-50"
+                                    : "hover:bg-gray-50"
                                 }`}
                               >
                                 <div className="col-span-1">
@@ -281,7 +290,10 @@ const Dashboard: React.FC = (): JSX.Element => {
                                     type="checkbox"
                                     checked={task.isDone}
                                     onChange={() =>
-                                      handleToggleComplete(task._id, !task.isDone)
+                                      handleToggleComplete(
+                                        task._id,
+                                        !task.isDone
+                                      )
                                     }
                                     className="rounded  focus:ring-[#00C495]"
                                   />
@@ -289,7 +301,9 @@ const Dashboard: React.FC = (): JSX.Element => {
                                 <div className="col-span-4">{task.title}</div>
                                 <div className="col-span-2">
                                   {task.dueDate
-                                    ? new Date(task.dueDate).toLocaleDateString()
+                                    ? new Date(
+                                        task.dueDate
+                                      ).toLocaleDateString()
                                     : "No due date"}
                                 </div>
                                 <div className="col-span-2">
@@ -297,14 +311,18 @@ const Dashboard: React.FC = (): JSX.Element => {
                                     className="px-3 py-1 rounded-full text-sm"
                                     style={{
                                       backgroundColor: task.description
-                                        ? tagColors[task.description.replace(/\s/g, "")]
+                                        ? tagColors[
+                                            task.description.replace(/\s/g, "")
+                                          ]
                                         : "#DDDDDD",
                                     }}
                                   >
                                     {task.description || "No tag"}
                                   </span>
                                 </div>
-                                <div className="col-span-2">{task.notes.join(", ")}</div>
+                                <div className="col-span-2">
+                                  {task.notes.join(", ")}
+                                </div>
                                 <div className="col-span-1 flex gap-2">
                                   <button
                                     className="text-gray-500 hover:text-gray-700"
@@ -358,15 +376,41 @@ const Dashboard: React.FC = (): JSX.Element => {
                       {...provided.droppableProps}
                       className="bg-white rounded-lg shadow-lg font-inter"
                     >
+                      <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
+                        <div className="col-span-1"></div>
+                        <div className="col-span-4 flex items-center gap-2">
+                          <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                          Task name
+                        </div>
+                        <div className="col-span-2 flex items-center gap-2">
+                          <CalendarIcon className="w-5 h-5 text-gray-500" />
+                          Due date
+                        </div>
+                        <div className="col-span-2 flex items-center gap-2">
+                          <TagIcon className="w-5 h-5 text-gray-500" />
+                          Tag
+                        </div>
+                        <div className="col-span-2 flex items-center gap-2">
+                          <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                          Note
+                        </div>
+                        <div className="col-span-1">Actions</div>
+                      </div>
                       {completedTasks.map((task: Task, index: number) => (
-                        <Draggable key={task._id} draggableId={task._id} index={index}>
+                        <Draggable
+                          key={task._id}
+                          draggableId={task._id}
+                          index={index}
+                        >
                           {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               className={`grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-gray-200 ${
-                                snapshot.isDragging ? 'bg-gray-50' : 'hover:bg-gray-50'
+                                snapshot.isDragging
+                                  ? "bg-gray-50"
+                                  : "hover:bg-gray-50"
                               }`}
                             >
                               <div className="col-span-1">
@@ -381,19 +425,27 @@ const Dashboard: React.FC = (): JSX.Element => {
                               </div>
                               <div className="col-span-4">{task.title}</div>
                               <div className="col-span-2">
-                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}
+                                {task.dueDate
+                                  ? new Date(task.dueDate).toLocaleDateString()
+                                  : "No due date"}
                               </div>
                               <div className="col-span-2">
                                 <span
                                   className="px-3 py-1 rounded-full text-sm"
                                   style={{
-                                    backgroundColor: task.description ? tagColors[task.description.replace(/\s/g, '')] : "#DDDDDD",
+                                    backgroundColor: task.description
+                                      ? tagColors[
+                                          task.description.replace(/\s/g, "")
+                                        ]
+                                      : "#DDDDDD",
                                   }}
                                 >
                                   {task.description || "No tag"}
                                 </span>
                               </div>
-                              <div className="col-span-2">{task.notes.join(", ")}</div>
+                              <div className="col-span-2">
+                                {task.notes.join(", ")}
+                              </div>
                             </div>
                           )}
                         </Draggable>
