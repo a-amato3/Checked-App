@@ -20,7 +20,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, existi
   const resetForm = () => {
     setTitle('');
     setDueDate(new Date());
-    setTag('low');
+    setTag('Low');
     setNote('');
   };
 
