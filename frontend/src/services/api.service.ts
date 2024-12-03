@@ -19,7 +19,9 @@ export const TaskAPI = {
   },
 
   async createTask(task: CreateTaskDTO): Promise<Task> {
-    const response = await axiosInstance.post('/tasks', task);
+    const response = await axiosInstance.post('/tasks', task);  
+    console.log(response);
+      
     return response.data.data;
   },
 
@@ -45,5 +47,5 @@ export const TaskAPI = {
   async removeNote(id: string, noteIndex: number): Promise<Task> {
     const response = await axiosInstance.delete(`/tasks/${id}/notes/${noteIndex}`);
     return response.data.data;
-  }
+  },
 };

@@ -23,6 +23,9 @@ import { Task } from "../types/task.types";
 import TaskModal from "../components/TaskModal";
 import { Loading } from "../components/Loading";
 
+type SortDirection = 'asc' | 'desc' | null;
+type SortField = 'title' | 'notes' | null;
+
 const tagColors: { [key: string]: string } = {
   Low: "#DDDDDD",
   Medium: "#FFEEB4",
@@ -41,6 +44,8 @@ const Dashboard: React.FC = (): JSX.Element => {
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
   const [isActiveTasksOpen, setIsActiveTasksOpen] = useState(true);
   const [isCompletedTasksOpen, setIsCompletedTasksOpen] = useState(true);
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   const handleLogout = async () => {
     try {
@@ -117,13 +122,43 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
-  const filteredTasks = tasks.filter(
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc');
+      setSortField(prev => prev === field && sortDirection === 'desc' ? null : field);
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedTasks = (tasksToSort: Task[]) => {
+    if (!sortField || !sortDirection) return tasksToSort;
+
+    return [...tasksToSort].sort((a, b) => {
+      if (sortField === 'title') {
+        return sortDirection === 'asc' 
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
+      if (sortField === 'notes') {
+        const aNote = a.notes.join(', ');
+        const bNote = b.notes.join(', ');
+        return sortDirection === 'asc'
+          ? aNote.localeCompare(bNote)
+          : bNote.localeCompare(aNote);
+      }
+      return 0;
+    });
+  };
+
+  const filteredTasks = getSortedTasks(tasks.filter(
     (task: Task) =>
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.notes.some((note) =>
         note.toLowerCase().includes(searchQuery.toLowerCase())
       )
-  );
+  ));
 
   const activeTasks = filteredTasks.filter((task) => !task.isDone);
   const completedTasks = filteredTasks.filter((task) => task.isDone);
@@ -152,6 +187,45 @@ const Dashboard: React.FC = (): JSX.Element => {
     const newIsDone = destination.droppableId === "done";
     await handleToggleComplete(draggableId, newIsDone);
   };
+
+  const renderHeaders = () => (
+    <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
+      <div className="col-span-1"></div>
+      <div 
+        className="col-span-4 flex items-center gap-2 cursor-pointer hover:text-gray-900"
+        onClick={() => handleSort('title')}
+      >
+        <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+        Task name
+        {sortField === 'title' && (
+          <span className="ml-1">
+            {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : ''}
+          </span>
+        )}
+      </div>
+      <div className="col-span-2 flex items-center gap-2">
+        <CalendarIcon className="w-5 h-5 text-gray-500" />
+        Due date
+      </div>
+      <div className="col-span-2 flex items-center gap-2">
+        <TagIcon className="w-5 h-5 text-gray-500" />
+        Tag
+      </div>
+      <div 
+        className="col-span-2 flex items-center gap-2 cursor-pointer hover:text-gray-900"
+        onClick={() => handleSort('notes')}
+      >
+        <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+        Note
+        {sortField === 'notes' && (
+          <span className="ml-1">
+            {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : ''}
+          </span>
+        )}
+      </div>
+      <div className="col-span-1">Actions</div>
+    </div>
+  );
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -237,28 +311,7 @@ const Dashboard: React.FC = (): JSX.Element => {
                       className="bg-white rounded-lg shadow-lg mb-8 font-inter"
                     >
                       <div>
-                        {/* Task Headers */}
-                        <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
-                          <div className="col-span-1"></div>
-                          <div className="col-span-4 flex items-center gap-2">
-                            <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                            Task name
-                          </div>
-                          <div className="col-span-2 flex items-center gap-2">
-                            <CalendarIcon className="w-5 h-5 text-gray-500" />
-                            Due date
-                          </div>
-                          <div className="col-span-2 flex items-center gap-2">
-                            <TagIcon className="w-5 h-5 text-gray-500" />
-                            Tag
-                          </div>
-                          <div className="col-span-2 flex items-center gap-2">
-                            <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                            Note
-                          </div>
-                          <div className="col-span-1">Actions</div>
-                        </div>
-
+                        {renderHeaders()}
                         {/* Task Items */}
                         {activeTasks.length === 0 && (
                           <div className="text-center py-8 text-gray-500">
