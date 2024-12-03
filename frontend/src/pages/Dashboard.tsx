@@ -51,10 +51,12 @@ const Dashboard: React.FC = (): JSX.Element => {
       try {
         setIsLoading(true);
         const fetchedTasks = await TaskAPI.getAllTasks();
-        setTasks(fetchedTasks);
+        setTimeout(() => {
+          setTasks(fetchedTasks);
+          setIsLoading(false);
+        }, 500);
       } catch (error) {
         console.error("Error fetching tasks:", error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -131,51 +133,52 @@ const Dashboard: React.FC = (): JSX.Element => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Tasks Section */}
       <div className="max-w-screen-xl mx-auto px-4 py-8">
+        {/* Header with Title, Search, and Logout */}
+        <div className="flex justify-between items-center py-6">
+          <h1 className="font-poppins text-[28px] font-bold text-start">
+            My Tasks for the next month
+          </h1>
+          <div className="flex items-center gap-6 ml-auto">
+            <div className="relative">
+              <input
+                type="search"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#00C495]"
+              />
+              <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+            </div>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 border border-gray-300 rounded-[4px] hover:bg-gray-50 flex items-center gap-2"
+            >
+              <LockClosedIcon className="w-5 h-5" />
+              <span className="text-[14px] font-medium leading-[21px]">
+                Logout
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Add Task Section */}
+        <div className="my-4 flex gap-4">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#00C495] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2"
+          >
+            <span>+</span>
+            Add task
+          </button>
+        </div>
+
+        {/* Task Tables */}
         {isLoading ? (
-          <Loading message="Loading tasks..." />
+          <Loading />
         ) : (
           <>
-            {/* Header with Title, Search, and Logout */}
-            <div className="flex justify-between items-center py-6">
-              <h1 className="font-poppins text-[28px] font-bold text-start">
-                My Tasks for the next month
-              </h1>
-              <div className="flex items-center gap-6 ml-auto">
-                <div className="relative">
-                  <input
-                    type="search"
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#00C495]"
-                  />
-                  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 border border-gray-300 rounded-[4px] hover:bg-gray-50 flex items-center gap-2"
-                >
-                  <LockClosedIcon className="w-5 h-5" />
-                  <span className="text-[14px] font-medium leading-[21px]">
-                    Logout
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Add Task Section */}
-            <div className="my-4 flex gap-4">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-[#00C495] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2"
-              >
-                <span>+</span>
-                Add task
-              </button>
-            </div>
-
             {/* Active Tasks Section */}
             <div className="flex justify-start">
               <h2 className="px-4 py-2 text-lg font-semibold text-gray-700">
@@ -252,7 +255,9 @@ const Dashboard: React.FC = (): JSX.Element => {
                         <span
                           className="px-3 py-1 rounded-full text-sm"
                           style={{
-                            backgroundColor: task.description ? tagColors[task.description.replace(/\s/g, '')] : "#DDDDDD",
+                            backgroundColor: task.description
+                              ? tagColors[task.description.replace(/\s/g, "")]
+                              : "#DDDDDD",
                           }}
                         >
                           {task.description || "No tag"}
@@ -322,16 +327,14 @@ const Dashboard: React.FC = (): JSX.Element => {
                         />
                       </div>
                       <div className="col-span-4">{task.title}</div>
-                      <div className="col-span-2">
-                        {task.dueDate
-                          ? new Date(task.dueDate).toLocaleDateString()
-                          : "No due date"}
-                      </div>
+                      <div className="col-span-2">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</div>
                       <div className="col-span-2">
                         <span
                           className="px-3 py-1 rounded-full text-sm"
                           style={{
-                            backgroundColor: task.description ? tagColors[task.description] : "#DDDDDD",
+                            backgroundColor: task.description
+                              ? tagColors[task.description]
+                              : "#DDDDDD",
                           }}
                         >
                           {task.description || "No tag"}

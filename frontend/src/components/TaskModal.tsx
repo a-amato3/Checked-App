@@ -12,7 +12,7 @@ interface TaskModalProps {
 
 const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, existingTask }) => {
   const [title, setTitle] = useState('');
-  const [dueDate, setDueDate] = useState<Date | null>(new Date());
+  const [dueDate, setDueDate] = useState<Date | null>(null);
   const [tag, setTag] = useState('low');
   const [note, setNote] = useState('');
 
@@ -33,13 +33,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, existi
   useEffect(() => {
     if (existingTask) {
       setTitle(existingTask.title);
-      setDueDate(existingTask.createdAt ? new Date(existingTask.createdAt) : new Date());
+      setDueDate(existingTask.dueDate ? new Date(existingTask.dueDate) : null);
       setTag(existingTask.description!);
       setNote(existingTask.notes[0] || '');
     } else {
       resetForm();
     }
-  }, [existingTask, isOpen]); // Added isOpen dependency
+  }, [existingTask, isOpen]);
 
   // Update form submission to use handleClose
   const handleSubmit = (e: React.FormEvent) => {
@@ -48,10 +48,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, existi
       title,
       isDone: false,
       description: tag,
-      notes: note ? [note] : [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      dueDate: dueDate ? dueDate : new Date()
+      dueDate: dueDate || new Date(),
+      notes: note ? [note] : [],   
     };
     onSubmit(taskData);
     handleClose();
