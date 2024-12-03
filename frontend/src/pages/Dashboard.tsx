@@ -9,12 +9,13 @@ import {
   Bars3CenterLeftIcon,
   MagnifyingGlassIcon,
   LockClosedIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { TaskAPI } from "../services/api.service";
 import { Task } from "../types/task.types";
 import TaskModal from "../components/TaskModal";
 import { Loading } from "../components/Loading";
-
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const auth = getAuth();
@@ -23,6 +24,8 @@ const Dashboard: React.FC = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  const [isActiveTasksOpen, setIsActiveTasksOpen] = useState(true);
+  const [isCompletedTasksOpen, setIsCompletedTasksOpen] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -105,6 +108,9 @@ const Dashboard: React.FC = (): JSX.Element => {
       )
   );
 
+  const activeTasks = filteredTasks.filter((task) => !task.isDone);
+  const completedTasks = filteredTasks.filter((task) => task.isDone);
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Banner */}
@@ -161,92 +167,166 @@ const Dashboard: React.FC = (): JSX.Element => {
               </button>
             </div>
 
-            {/* Tasks Section */}
-            <div className="bg-white rounded-lg shadow-lg">
-              <div>
-                {/* Task Headers */}
-                <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700">
-                  <div className="col-span-1"></div>
-                  <div className="col-span-4 flex items-center gap-2">
-                    <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                    Task name
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <CalendarIcon className="w-5 h-5 text-gray-500" />
-                    Due date
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <TagIcon className="w-5 h-5 text-gray-500" />
-                    Tag
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
-                    Note
-                  </div>
-                  <div className="col-span-1">Actions</div>
-                </div>
-
-                {/* Task Items */}
-                {filteredTasks.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchQuery
-                      ? "No tasks found matching your search."
-                      : "No tasks found. Add a task to get started!"}
-                  </div>
+            {/* Active Tasks Section */}
+            <div className="flex justify-start">
+              <h2 className="px-4 py-2 text-lg font-semibold text-gray-700">
+                Tasks to do
+              </h2>
+              <button
+                onClick={() => setIsActiveTasksOpen(!isActiveTasksOpen)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                {isActiveTasksOpen ? (
+                  <ChevronDownIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronUpIcon className="w-5 h-5" />
                 )}
-
-                {filteredTasks.map((task: Task) => (
-                  <div
-                    key={task._id}
-                    className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-gray-50"
-                  >
-                    <div className="col-span-1">
-                      <input
-                        type="checkbox"
-                        checked={task.isDone}
-                        onChange={() =>
-                          handleToggleComplete(task._id, !task.isDone)
-                        }
-                        className="rounded"
-                      />
-                    </div>
-                    <div className="col-span-4">{task.title}</div>
-                    <div className="col-span-2">
-                      {task.dueDate
-                        ? new Date(task.dueDate).toLocaleDateString()
-                        : "No due date"}
-                    </div>
-                    <div className="col-span-2">
-                      <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                        {task.description || "No tag"}
-                      </span>
-                    </div>
-                    <div className="col-span-2">{task.notes.join(", ")}</div>
-                    <div className="col-span-1 flex gap-2">
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => {
-                          setCurrentTask(task);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        <PencilIcon className="w-5 h-5" />
-                      </button>
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => handleDeleteTask(task._id)}
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              </button>
             </div>
+
+            {isActiveTasksOpen && (
+              <div className="bg-white rounded-lg shadow-lg mb-8">
+                <div>
+                  {/* Task Headers */}
+                  <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700">
+                    <div className="col-span-1"></div>
+                    <div className="col-span-4 flex items-center gap-2">
+                      <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                      Task name
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <CalendarIcon className="w-5 h-5 text-gray-500" />
+                      Due date
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <TagIcon className="w-5 h-5 text-gray-500" />
+                      Tag
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <Bars3CenterLeftIcon className="w-5 h-5 text-gray-500" />
+                      Note
+                    </div>
+                    <div className="col-span-1">Actions</div>
+                  </div>
+
+                  {/* Task Items */}
+                  {activeTasks.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      {searchQuery
+                        ? "No active tasks found matching your search."
+                        : "No active tasks found. Add a task to get started!"}
+                    </div>
+                  )}
+
+                  {activeTasks.map((task: Task) => (
+                    <div
+                      key={task._id}
+                      className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-gray-50"
+                    >
+                      <div className="col-span-1">
+                        <input
+                          type="checkbox"
+                          checked={task.isDone}
+                          onChange={() =>
+                            handleToggleComplete(task._id, !task.isDone)
+                          }
+                          className="rounded"
+                        />
+                      </div>
+                      <div className="col-span-4">{task.title}</div>
+                      <div className="col-span-2">
+                        {task.dueDate
+                          ? new Date(task.dueDate).toLocaleDateString()
+                          : "No due date"}
+                      </div>
+                      <div className="col-span-2">
+                        <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                          {task.description || "No tag"}
+                        </span>
+                      </div>
+                      <div className="col-span-2">{task.notes.join(", ")}</div>
+                      <div className="col-span-1 flex gap-2">
+                        <button
+                          className="text-gray-500 hover:text-gray-700"
+                          onClick={() => {
+                            setCurrentTask(task);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <PencilIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          className="text-gray-500 hover:text-gray-700"
+                          onClick={() => handleDeleteTask(task._id)}
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Completed Tasks Section */}
+            <div className="flex justify-start">
+              <h2 className="px-4 py-2 text-lg font-semibold text-gray-700">
+                Tasks done
+              </h2>
+              <button
+                onClick={() => setIsCompletedTasksOpen(!isCompletedTasksOpen)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                {isCompletedTasksOpen ? (
+                  <ChevronDownIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronUpIcon className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+
+            {isCompletedTasksOpen && (
+              <div className="bg-white rounded-lg shadow-lg">
+                {completedTasks.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No completed tasks found.
+                  </div>
+                ) : (
+                  completedTasks.map((task: Task) => (
+                    <div
+                      key={task._id}
+                      className="grid grid-cols-12 gap-4 px-4 py-3 items-center bg-gray-50"
+                    >
+                      <div className="col-span-1">
+                        <input
+                          type="checkbox"
+                          checked={task.isDone}
+                          onChange={() =>
+                            handleToggleComplete(task._id, !task.isDone)
+                          }
+                          className="rounded"
+                        />
+                      </div>
+                      <div className="col-span-4">{task.title}</div>
+                      <div className="col-span-2">
+                        {task.dueDate
+                          ? new Date(task.dueDate).toLocaleDateString()
+                          : "No due date"}
+                      </div>
+                      <div className="col-span-2">
+                        <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                          {task.description || "No tag"}
+                        </span>
+                      </div>
+                      <div className="col-span-2">{task.notes.join(", ")}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
-
       {/* Add Modal */}
       <TaskModal
         isOpen={isModalOpen}
