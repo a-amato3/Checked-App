@@ -125,7 +125,7 @@ export const TaskLists: React.FC<TaskListsProps> = ({
                   </div>
                   <div className="col-span-4">{task.title}</div>
                   <div className="col-span-2">
-                    {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}
+                    {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : new Date().toLocaleDateString()}
                   </div>
                   {/* Tag with colour coding */}
                   <div className="col-span-2">

@@ -14,6 +14,7 @@ A modern task management application built with React, TypeScript, and Node.js. 
 - Create, edit, and delete tasks
 - Mark tasks as complete/incomplete
 - Drag-and-drop task reordering
+- Drag-and-drop task to different lists to automatically complete the task
 - Automatic weather display for tasks with city names
 - Task categorisation with tags
 - Due date assignment
