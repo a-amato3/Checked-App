@@ -12,7 +12,10 @@ const port = process.env.PORT || 3001;
 
 // Enable CORS
 app.use(cors({
-  origin: 'http://localhost:3000', 
+  origin: [   
+    'http://localhost:3000',              // Development
+    'https://react-todo-f44db.web.app'    // Production]
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }));
