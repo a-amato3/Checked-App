@@ -16,6 +16,15 @@ import { TaskAPI } from "../services/api.service";
 import { Task } from "../types/task.types";
 import TaskModal from "../components/TaskModal";
 import { Loading } from "../components/Loading";
+
+const tagColors: { [key: string]: string } = {
+  Low: "#DDDDDD",
+  Medium: "#FFEEB4",
+  High: "#FFB4DC",
+  Urgent: "#FFEEB4",
+  Noturgent: "#DDDDDD",
+};
+
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const auth = getAuth();
@@ -240,7 +249,12 @@ const Dashboard: React.FC = (): JSX.Element => {
                           : "No due date"}
                       </div>
                       <div className="col-span-2">
-                        <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                        <span
+                          className="px-3 py-1 rounded-full text-sm"
+                          style={{
+                            backgroundColor: task.description ? tagColors[task.description.replace(/\s/g, '')] : "#DDDDDD",
+                          }}
+                        >
                           {task.description || "No tag"}
                         </span>
                       </div>
@@ -314,7 +328,12 @@ const Dashboard: React.FC = (): JSX.Element => {
                           : "No due date"}
                       </div>
                       <div className="col-span-2">
-                        <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                        <span
+                          className="px-3 py-1 rounded-full text-sm"
+                          style={{
+                            backgroundColor: task.description ? tagColors[task.description] : "#DDDDDD",
+                          }}
+                        >
                           {task.description || "No tag"}
                         </span>
                       </div>

@@ -96,9 +96,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, existi
               onChange={(e) => setTag(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-[#00C495]"
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Not urgent">Not urgent</option>
             </select>
           </div>
 
