@@ -103,7 +103,7 @@ export const TaskLists: React.FC<TaskListsProps> = ({
             </div>
           )}
           {/* Map through tasks and render each one */}
-          {tasks.map((task, index) => (
+          {tasks.map((task: Task, index) => (
             <Draggable key={task._id} draggableId={task._id} index={index}>
               {(provided, snapshot) => (
                 <div

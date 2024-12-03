@@ -20,8 +20,6 @@ export const TaskAPI = {
 
   async createTask(task: CreateTaskDTO): Promise<Task> {
     const response = await axiosInstance.post('/tasks', task);  
-    console.log(response);
-      
     return response.data.data;
   },
 

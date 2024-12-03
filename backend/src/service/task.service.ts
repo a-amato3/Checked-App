@@ -64,12 +64,11 @@ export class TaskService {
    * If the task title contains a city name, weather information will be added to the notes.
    */
   async createTask(taskData: CreateTaskDTO): Promise<ITaskDocument> {
-    console.log("Received task data:", taskData);
-
     const task = await Task.create({
       ...taskData,
       createdAt: new Date(),
       updatedAt: new Date(),
+      dueDate: taskData.dueDate ? new Date(taskData.dueDate) : new Date()
     });
     
     await this.addWeatherInfoToTask(task);

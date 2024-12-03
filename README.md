@@ -43,6 +43,24 @@ A modern task management application built with React, TypeScript, and Node.js. 
 - CORS enabled
 - Environment variable configuration
 
+### Docker
+- Docker and Docker Compose for containerisation
+
+Run the entire application stack using Docker:
+
+```bash
+docker-compose up --build
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+- MongoDB: mongodb://localhost:27017
+
+To stop the containers:
+```bash
+docker-compose down
+```
 ## Getting Started
 
 ### Prerequisites
@@ -50,6 +68,8 @@ A modern task management application built with React, TypeScript, and Node.js. 
 - MongoDB instance
 - Firebase project credentials
 - Weather API key
+
+
 
 ### Installation
 
@@ -71,8 +91,8 @@ npm install
 ```
 
 4. Configure Environment Variables
-- Create `.env` file in the backend directory (sent separately)
-- Contains MongoDB URI, JWT secret, and other sensitive data
+- Create `.env` file in both the frontend and backend directory (files sent separately)
+- Contains MongoDB URI, and other sensitive data
 
 ### Running the Application
 
@@ -103,7 +123,7 @@ yarn test
 
 ## Deployment
 
-The application is deployed using Firebase Hosting for the frontend and can be accessed at [deployment-url].
+The application is deployed using Firebase Hosting for the frontend and can be accessed at [https://react-todo-f44db.web.app/].
 
 ## Environment Variables
 
