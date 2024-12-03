@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Task } from '../../types/task.types';
 import { SortField, SortDirection, tagColors } from './types';
 import { ChevronDownIcon, ChevronUpIcon, PencilIcon, TrashIcon, Bars3CenterLeftIcon, CalendarIcon, TagIcon } from "@heroicons/react/24/outline";
 import { Droppable, Draggable } from "react-beautiful-dnd";
+import { Snackbar } from '../../components/Snackbar';
 
 interface TaskListsProps {
   activeTasks: Task[];
@@ -20,6 +21,12 @@ interface TaskListsProps {
   sortDirection: SortDirection;
 }
 
+interface SnackbarState {
+  isOpen: boolean;
+  message: string;
+  type: 'success' | 'error';
+}
+
 export const TaskLists: React.FC<TaskListsProps> = ({
   activeTasks,
   completedTasks,
@@ -35,6 +42,12 @@ export const TaskLists: React.FC<TaskListsProps> = ({
   sortField,
   sortDirection,
 }) => {
+  const [snackbar, setSnackbar] = useState<SnackbarState>({
+    isOpen: false,
+    message: '',
+    type: 'success'
+  });
+
   // Renders the column headers with sorting functionality
   // Note: Click on 'Task name' to sort alphabetically
   const renderHeaders = () => (
@@ -197,7 +210,15 @@ export const TaskLists: React.FC<TaskListsProps> = ({
       </div>
 
       {isCompletedTasksOpen && renderTaskList(completedTasks, "done", false)}
+
+      <Snackbar
+        isOpen={snackbar.isOpen}
+        message={snackbar.message}
+        type={snackbar.type}
+        onClose={() => setSnackbar(prev => ({ ...prev, isOpen: false }))}
+      />
     </>
   );
 };
 
+export default TaskLists;

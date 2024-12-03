@@ -13,7 +13,13 @@ import TaskModal from "../../components/TaskModal";
 import { Loading } from "../../components/Loading";
 import { SortDirection, SortField } from "./types";
 import { TaskLists } from './TaskLists';
+import { Snackbar } from '../../components/Snackbar';
 
+interface SnackbarState {
+  isOpen: boolean;
+  message: string;
+  type: 'success' | 'error';
+}
 
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
@@ -28,6 +34,11 @@ const Dashboard: React.FC = (): JSX.Element => {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState<SnackbarState>({
+    isOpen: false,
+    message: '',
+    type: 'success'
+  });
 
   const handleLogout = async () => {
     try {
@@ -88,19 +99,35 @@ const Dashboard: React.FC = (): JSX.Element => {
     try {
       await TaskAPI.deleteTask(taskId);
       setTasks((prev) => prev.filter((task: Task) => task._id !== taskId));
+      setSnackbar({
+        isOpen: true,
+        message: 'Task deleted successfully',
+        type: 'success'
+      });
     } catch (error) {
-      console.error("Error deleting task:", error);
+      setSnackbar({
+        isOpen: true,
+        message: 'Failed to delete task',
+        type: 'error'
+      });
     }
   };
 
-  const handleToggleComplete = async (taskId: string, completed: boolean) => {
+  const handleToggleComplete = async (taskId: string, isDone: boolean) => {
     try {
       const updated = await TaskAPI.toggleTaskStatus(taskId);
-      setTasks((prev) =>
-        prev.map((task) => (task._id === taskId ? updated : task))
-      );
+      setTasks(prev => prev.map(task => task._id === taskId ? updated : task));
+      setSnackbar({
+        isOpen: true,
+        message: `Task ${isDone ? 'completed' : 'uncompleted'} successfully`,
+        type: 'success'
+      });
     } catch (error) {
-      console.error("Error updating task completion:", error);
+      setSnackbar({
+        isOpen: true,
+        message: 'Failed to update task status',
+        type: 'error'
+      });
     }
   };
 
@@ -295,6 +322,12 @@ const Dashboard: React.FC = (): JSX.Element => {
             }
           }}
           existingTask={currentTask}
+        />
+        <Snackbar
+          isOpen={snackbar.isOpen}
+          message={snackbar.message}
+          type={snackbar.type}
+          onClose={() => setSnackbar(prev => ({ ...prev, isOpen: false }))}
         />
       </div>
     </DragDropContext>

@@ -52,9 +52,7 @@ export class TaskService {
     const cityMatch = task.title.match(/(?:in|at)\s+([A-Z][a-z]+)/);
     if (cityMatch) {
       const city = cityMatch[1];
-      console.log("Found city:", city);
       const weatherInfo = await this.getWeatherForCity(city);
-      console.log("Weather info:", weatherInfo);
       if (weatherInfo && !task.notes.includes(weatherInfo)) {
         task.notes.push(weatherInfo);
       }
