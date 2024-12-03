@@ -197,7 +197,7 @@ const Dashboard: React.FC = (): JSX.Element => {
             </div>
 
             {isActiveTasksOpen && (
-              <div className="bg-white rounded-lg shadow-lg mb-8">
+              <div className="bg-white rounded-lg shadow-lg mb-8 font-inter font-size-[12px]">
                 <div>
                   {/* Task Headers */}
                   <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-700">
@@ -242,7 +242,7 @@ const Dashboard: React.FC = (): JSX.Element => {
                           onChange={() =>
                             handleToggleComplete(task._id, !task.isDone)
                           }
-                          className="rounded"
+                          className="rounded  focus:ring-[#00C495]"
                         />
                       </div>
                       <div className="col-span-4">{task.title}</div>
@@ -305,7 +305,7 @@ const Dashboard: React.FC = (): JSX.Element => {
             </div>
 
             {isCompletedTasksOpen && (
-              <div className="bg-white rounded-lg shadow-lg">
+              <div className="bg-white rounded-lg shadow-lg font-inter font-size-[12px]">
                 {completedTasks.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     No completed tasks found.
@@ -323,7 +323,7 @@ const Dashboard: React.FC = (): JSX.Element => {
                           onChange={() =>
                             handleToggleComplete(task._id, !task.isDone)
                           }
-                          className="rounded"
+                          className="rounded text-[#00C495] focus:ring-[#00C495]"
                         />
                       </div>
                       <div className="col-span-4">{task.title}</div>
