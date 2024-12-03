@@ -18,21 +18,12 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
-import { TaskAPI } from "../services/api.service";
-import { Task } from "../types/task.types";
-import TaskModal from "../components/TaskModal";
-import { Loading } from "../components/Loading";
+import { TaskAPI } from "../../services/api.service";
+import { Task } from "../../types/task.types";
+import TaskModal from "../../components/TaskModal";
+import { Loading } from "../../components/Loading";
+import { SortDirection, SortField, tagColors } from "./types";
 
-type SortDirection = 'asc' | 'desc' | null;
-type SortField = 'title' | 'notes' | null;
-
-const tagColors: { [key: string]: string } = {
-  Low: "#DDDDDD",
-  Medium: "#FFEEB4",
-  High: "#FFB4DC",
-  Urgent: "#FFEEB4",
-  Noturgent: "#DDDDDD",
-};
 
 const Dashboard: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
@@ -46,6 +37,7 @@ const Dashboard: React.FC = (): JSX.Element => {
   const [isCompletedTasksOpen, setIsCompletedTasksOpen] = useState(true);
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -230,19 +222,50 @@ const Dashboard: React.FC = (): JSX.Element => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="min-h-screen bg-gray-100">
-        {/* Banner */}
+        {/* Banner with burger menu */}
         <div className="bg-black text-white p-4">
-          <div className="max-w-screen-xl">
+          <div className="max-w-screen-xl flex justify-between items-center">
             <div className="text-[20px] font-semibold leading-[30px] font-poppins">
               Checked
             </div>
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden"
+            >
+              <Bars3CenterLeftIcon className="w-6 h-6" />
+            </button>
           </div>
         </div>
 
-        {/* Main Tasks Section */}
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white shadow-lg p-4">
+            <div className="flex flex-col gap-4">
+              <div className="relative">
+                <input
+                  type="search"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-[4px]"
+                />
+                <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 border border-gray-300 rounded-[4px] flex items-center gap-2"
+              >
+                <LockClosedIcon className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main content */}
         <div className="max-w-screen-xl mx-auto px-4 py-8">
-          {/* Header with Title, Search, and Logout */}
-          <div className="flex justify-between items-center py-6">
+          {/* Desktop header */}
+          <div className="hidden md:flex justify-between items-center py-6">
             <h1 className="font-poppins text-[28px] font-bold text-start">
               My Tasks for the next month
             </h1>
@@ -253,20 +276,25 @@ const Dashboard: React.FC = (): JSX.Element => {
                   placeholder="Search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#00C495]"
+                  className="pl-10 pr-4 py-2 w-[240px] border border-gray-300 rounded-[4px]"
                 />
                 <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               </div>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 border border-gray-300 rounded-[4px] hover:bg-gray-50 flex items-center gap-2"
+                className="px-4 py-2 border border-gray-300 rounded-[4px] flex items-center gap-2"
               >
                 <LockClosedIcon className="w-5 h-5" />
-                <span className="text-[14px] font-medium leading-[21px]">
-                  Logout
-                </span>
+                <span>Logout</span>
               </button>
             </div>
+          </div>
+
+          {/* Mobile header */}
+          <div className="md:hidden py-6">
+            <h1 className="font-poppins text-[24px] font-bold text-start">
+              My Tasks for the next month
+            </h1>
           </div>
 
           {/* Add Task Section */}
