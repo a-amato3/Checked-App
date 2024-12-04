@@ -29,6 +29,7 @@ A modern task management application built with React, TypeScript, and Node.js. 
 
 
 ### User Guide
+- Please allow some time for the server to start up if the app has been inactive for a while.
 - When creating a task, the due date can be set to a specific date or left blank to automatically complete the task on the current date.
 - When dragging a task to a different list, the task will be completed on the current date.
 - Toasts will appear when a task is created, updated or deleted.
@@ -141,6 +142,11 @@ PORT=
 MONGODB_URI=
 WEATHER_API_KEY=
 ```
+
+## Constraints and Limitations
+ - If time allowed, I would have implemented better test coverage of both the frontend and backend.
+ - User accounts could be implemented to different users could have their own tasks.
+
 
 ## License
 
