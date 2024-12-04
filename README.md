@@ -27,6 +27,13 @@ A modern task management application built with React, TypeScript, and Node.js. 
 - Loading states and error handling
 - Mobile-friendly interface
 
+
+### User Guide
+- When creating a task, the due date can be set to a specific date or left blank to automatically complete the task on the current date.
+- When dragging a task to a different list, the task will be completed on the current date.
+- Toasts will appear when a task is created, updated or deleted.
+- Use the keywords 'in', 'at' or 'to' followed by a city name to automatically add weather information to the task notes.
+
 ## Tech Stack
 
 ### Frontend
@@ -55,7 +62,7 @@ docker-compose up --build
 
 The application will be available at:
 - Frontend: http://localhost:3000
-- Backend: http://localhost:5000
+- Backend: http://localhost:3001
 - MongoDB: mongodb://localhost:27017
 
 To stop the containers:

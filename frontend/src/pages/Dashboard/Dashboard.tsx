@@ -15,6 +15,7 @@ import { SortDirection, SortField } from "./types";
 import { TaskLists } from './TaskLists';
 import { Snackbar } from '../../components/Snackbar';
 
+// Interface for managing Snackbar notifications state
 interface SnackbarState {
   isOpen: boolean;
   message: string;
@@ -22,24 +23,34 @@ interface SnackbarState {
 }
 
 const Dashboard: React.FC = (): JSX.Element => {
+  // Navigation and Authentication
   const navigate = useNavigate();
   const auth = getAuth();
+
+  // Core State Management
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  
+  // UI State Management
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isActiveTasksOpen, setIsActiveTasksOpen] = useState(true);
   const [isCompletedTasksOpen, setIsCompletedTasksOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Sorting State
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Notification State
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     isOpen: false,
     message: '',
     type: 'success'
   });
 
+  // Authentication handler for user logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -49,12 +60,13 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
-  // Fetch tasks
+  // Initial data fetch on component mount
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
         const fetchedTasks = await TaskAPI.getAllTasks();
+        // Artificial delay for better UX
         setTimeout(() => {
           setTasks(fetchedTasks);
           setIsLoading(false);
@@ -67,23 +79,19 @@ const Dashboard: React.FC = (): JSX.Element => {
     fetchTasks();
   }, []);
 
-  // CRUD Operations
+  // CRUD Operations with error handling and notifications
   const handleAddTask = async (taskData: Omit<Task, "_id">) => {
     try {
-      console.log("Sending task data:", taskData);
-
       const createdTask = await TaskAPI.createTask(taskData);
-      console.log("Response from server:", createdTask);
-
       setTasks((prevTasks) => [...prevTasks, createdTask]);
       setIsModalOpen(false);
     } catch (error: any) {
       console.error("Error details:", error.response?.data);
-      console.error("Full error:", error);
       alert("Failed to create task. Please check console for details.");
     }
   };
 
+  // Updates existing task and refreshes the task list
   const handleEditTask = async (taskId: string, updatedTask: Partial<Task>) => {
     try {
       const updated = await TaskAPI.updateTask(taskId, updatedTask);
@@ -95,6 +103,7 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
+  // Deletes task and shows success/error notification
   const handleDeleteTask = async (taskId: string) => {
     try {
       await TaskAPI.deleteTask(taskId);
@@ -113,6 +122,7 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
+  // Toggles task completion status with notification feedback
   const handleToggleComplete = async (taskId: string, isDone: boolean) => {
     try {
       const updated = await TaskAPI.toggleTaskStatus(taskId);
@@ -131,16 +141,20 @@ const Dashboard: React.FC = (): JSX.Element => {
     }
   };
 
+  // Sorting logic for task list
   const handleSort = (field: SortField) => {
     if (sortField === field) {
+      // If clicking same field, cycle through: asc -> desc -> no sort
       setSortDirection(prev => prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc');
       setSortField(prev => prev === field && sortDirection === 'desc' ? null : field);
     } else {
+      // New field selected, start with ascending sort
       setSortField(field);
       setSortDirection('asc');
     }
   };
 
+  // Applies current sort settings to task list
   const getSortedTasks = (tasksToSort: Task[]) => {
     if (!sortField || !sortDirection) return tasksToSort;
 
@@ -161,6 +175,7 @@ const Dashboard: React.FC = (): JSX.Element => {
     });
   };
 
+  // Filter tasks based on search query
   const filteredTasks = getSortedTasks(tasks.filter(
     (task: Task) =>
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -169,30 +184,30 @@ const Dashboard: React.FC = (): JSX.Element => {
       )
   ));
 
+  // Separate tasks into active and completed lists
   const activeTasks = filteredTasks.filter((task) => !task.isDone);
   const completedTasks = filteredTasks.filter((task) => task.isDone);
 
+  // Handle drag and drop between task lists
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId } = result;
 
-    // Drop outside valid area
+    // Validate drop operation
     if (!destination) return;
-
-    // If Same position
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
-    )
-      return;
+    ) return;
 
     const task = tasks.find((t) => t._id === draggableId);
     if (!task) return;
 
-    // Moving within the same list
+    // Only process if moving between lists (active <-> completed)
     if (source.droppableId === destination.droppableId) {
       return;
     }
 
+    // Update task status based on destination list
     const newIsDone = destination.droppableId === "done";
     await handleToggleComplete(draggableId, newIsDone);
   };

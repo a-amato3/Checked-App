@@ -5,3 +5,4 @@ backend/dist/
 backend/.env
 
 frontend/.env
+frontend/.env.production

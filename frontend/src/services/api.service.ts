@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { Task, CreateTaskDTO, UpdateTaskDTO } from '../types/task.types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+// Configure API endpoint based on environment
+// - In production: Uses REACT_APP_PROD_API_URL from environment variables (set in Render dashboard)
+// - In development: Uses localhost:3001 for local development
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_PROD_API_URL // Production URL from environment variable
+  : 'http://localhost:3001/api';       // Default development URL
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -9,7 +14,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true // Enables sending cookies in cross-origin requests
 });
 
 export const TaskAPI = {

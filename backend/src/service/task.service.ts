@@ -49,7 +49,7 @@ export class TaskService {
    * to the task's notes if a valid city is found.
    */
   private async addWeatherInfoToTask(task: ITaskDocument): Promise<void> {
-    const cityMatch = task.title.match(/(?:in|at)\s+([A-Z][a-z]+)/);
+    const cityMatch = task.title.match(/(?:in|at|to)\s+([A-Z][a-z]+)/);
     if (cityMatch) {
       const city = cityMatch[1];
       const weatherInfo = await this.getWeatherForCity(city);
